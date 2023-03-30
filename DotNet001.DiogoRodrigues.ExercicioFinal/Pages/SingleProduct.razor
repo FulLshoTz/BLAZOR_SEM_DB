@@ -1,0 +1,100 @@
+﻿@page "/product/{Id}"
+@using DotNet001.DiogoRodrigues.ExercicioFinal.Interfaces
+@using Models;
+
+@inject IWebServiceAPI WebServiceAPI
+
+@if (Product is not null)
+{
+    <img src="@Product.Image" />
+    <p>@Product.Title</p>
+    <p>@Product.Description</p>
+
+    <EditForm Model="Product" OnValidSubmit="OnHandleProductUpdate">
+        <div class="mb-3">
+            <label for="exampleFormControlInput2" class="form-label">Title</label>
+            <input type="text" class="form-control" id="exampleFormControlInput2" placeholder="Title" @bind=@Product.Title>
+        </div>
+        <div class="mb-3">
+            <label for="exampleFormControlInput3" class="form-label">Price</label>
+            <input type="text" class="form-control" id="exampleFormControlInput3" placeholder="Price" @bind=@Product.Price>
+        </div>
+        <div class="mb-3">
+            <label for="exampleFormControlInput4" class="form-label">Description</label>
+            <input type="text" class="form-control" id="exampleFormControlInput4" placeholder="Description" @bind=@Product.Description>
+        </div>
+        <button class="btn btn-primary">Update</button>
+    </EditForm>
+    <hr />
+    @Message
+}
+
+
+
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    public Product Product { get; set; }
+
+    private string Message { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            var response = await WebServiceAPI.GetProductById(Convert.ToInt32(Id));
+
+            if (response is not null)
+            {
+                Product = response;
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+    public async void OnHandleProductUpdate()
+    {
+        try
+        {
+            var newProduct = new ProductUpdate
+                {
+                    Title = Product.Title,
+                    Price = Product.Price,
+                    Description = Product.Description
+                };
+
+            var response = await WebServiceAPI.UpdateProduct(Convert.ToInt32(Id), newProduct);
+
+            if (response is not null)
+            {
+                Message = $"Product {response.Title} data was sucessfully updated";
+
+                StateHasChanged();
+            }
+        }
+        catch
+        {
+            throw;
+        }
+    }
+    //public async Task<Product> OnHandleProductDelete(int id)
+    //{
+    //    try
+    //    {
+    //        Product response = await WebServiceAPI.DeleteProduct(id);
+
+    //        if (response is not null)
+    //        {
+    //            Message = $"Product {response.Title} data was sucessfully deleted";
+    //        }
+    //    }
+    //    catch (Exception)
+    //    {
+    //        throw;
+    //    }
+    //}
+}

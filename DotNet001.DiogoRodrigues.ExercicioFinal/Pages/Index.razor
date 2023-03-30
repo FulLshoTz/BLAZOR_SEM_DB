@@ -1,0 +1,74 @@
+﻿@page "/"
+@using DotNet001.DiogoRodrigues.ExercicioFinal.Interfaces;
+@using Models;
+@inject IWebServiceAPI WebServiceAPI
+
+<h1>Products</h1>
+
+@if (products == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in products)
+            {
+                <tr>
+                    <td>@product.Id</td>
+                    <td>@product.Title</td>
+                    <td>@product.Description</td>
+                    <td>@product.Category</td>
+                    <td>@product.Price</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<Product> products;
+    public List<string> ListaCategorias { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await WebServiceAPI.GetAllProducts();
+            if (response is not null && response.Any())
+            {
+                products = response;
+            }
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+
+        try
+        {
+            var response = await WebServiceAPI.GetProductsByCategory();
+            if (response is not null && response.Any())
+            {
+                products = response;
+            }
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+}
+
